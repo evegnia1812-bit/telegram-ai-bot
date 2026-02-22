@@ -1,13 +1,16 @@
 print("БОТ ЗАПУСТИЛСЯ")
-from openai import OpenAI
-client = OpenAI(api_key="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")
+
+import os
 import requests
 from io import BytesIO
+from openai import OpenAI
+
 from telegram import (
     Update,
     InlineKeyboardButton,
     InlineKeyboardMarkup
 )
+
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -18,8 +21,8 @@ from telegram.ext import (
 )
 
 TELEGRAM_TOKEN = "8284541804:AAGmb571suCCjXnP5fF-_SMfFYy8IFed3w0"
-OPENAI_API_KEY = "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"
 
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 user_memory = {}
 user_last_image_prompt = {}
