@@ -20,8 +20,9 @@ from telegram.ext import (
 )
 
 # 🔑 КЛЮЧИ
-TELEGRAM_TOKEN = "8284541804:AAGmb571suCCjXnP5fF-_SMfFYy8IFed3w0"
-OPENAI_API_KEY = "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"
+import os
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -133,4 +134,5 @@ app.add_handler(CallbackQueryHandler(button_handler))
 
 print("БОТ ГОТОВ К РАБОТЕ")
 app.run_polling()
+
 
