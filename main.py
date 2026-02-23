@@ -1,6 +1,6 @@
 print("БОТ ЗАПУСТИЛСЯ")
 
-import requests
+import base64
 from io import BytesIO
 from openai import OpenAI
 
@@ -19,9 +19,9 @@ from telegram.ext import (
     filters
 )
 
-# 🔑 КЛЮЧИ (твои примерные)
-TELEGRAM_TOKEN = "8284541804:AAGmb571suCCjXnP5fF-_SMfFYy8IFed3w0"
-OPENAI_API_KEY = "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"
+# 🔑 КЛЮЧИ
+TELEGRAM_TOKEN = "ТВОЙ_TELEGRAM_TOKEN"
+OPENAI_API_KEY = "ТВОЙ_OPENAI_KEY"
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -69,7 +69,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + user_memory[user_id]
+            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + user_memory[user_id],
+            max_tokens=800
         )
 
         answer = response.choices[0].message.content
@@ -78,42 +79,49 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(answer, reply_markup=image_button())
 
     except Exception as e:
-        print("ОШИБКА:", e)
+        print("ОШИБКА ТЕКСТА:", e)
         await update.message.reply_text("Ошибка генерации ответа.")
 
 # ------------------ CALLBACK ------------------
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    user_id = query.from_user.id
-    await query.answer()
+    try:
+        query = update.callback_query
+        user_id = query.from_user.id
+        await query.answer()
 
-    if query.data == "generate_image":
+        if query.data == "generate_image":
 
-        full_story = " ".join([m["content"] for m in user_memory[user_id]])
+            full_story = " ".join([m["content"] for m in user_memory.get(user_id, [])])
 
-        prompt_response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Создай кинематографичный промпт для генерации изображения."},
-                {"role": "user", "content": full_story}
-            ]
-        )
+            prompt_response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Создай кинематографичный промпт для генерации изображения."},
+                    {"role": "user", "content": full_story}
+                ],
+                max_tokens=300
+            )
 
-        image_prompt = prompt_response.choices[0].message.content
+            image_prompt = prompt_response.choices[0].message.content
 
-        image = client.images.generate(
-            model="gpt-image-1",
-            prompt=image_prompt,
-            size="1024x1024"
-        )
+            # ⚡ НОВЫЙ ПРАВИЛЬНЫЙ СПОСОБ ГЕНЕРАЦИИ
+            image = client.images.generate(
+                model="gpt-image-1",
+                prompt=image_prompt,
+                size="1024x1024"
+            )
 
-        image_url = image.data[0].url
-        img_data = requests.get(image_url).content
+            image_base64 = image.data[0].b64_json
+            image_bytes = base64.b64decode(image_base64)
 
-        await query.message.reply_photo(
-            photo=BytesIO(img_data)
-        )
+            await query.message.reply_photo(
+                photo=BytesIO(image_bytes)
+            )
+
+    except Exception as e:
+        print("ОШИБКА КАРТИНКИ:", e)
+        await query.message.reply_text("Ошибка генерации изображения.")
 
 # ------------------ APP ------------------
 
@@ -123,4 +131,5 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 app.add_handler(CallbackQueryHandler(button_handler))
 
+print("БОТ ГОТОВ К РАБОТЕ")
 app.run_polling()
