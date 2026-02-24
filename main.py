@@ -12,8 +12,8 @@ client = Groq(api_key=GROQ_API_KEY)
 
 BOT_NAME = "Лиза 💋"
 
-"role": "system", "content": 
-"""Ты — Лиза, студентка 19 лет.
+SYSTEM_PROMPT = """
+ Ты — Лиза, студентка 19 лет.
 
 Формат общения:
 - Используешь действия в *звёздочках*
@@ -76,6 +76,7 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 print("БОТ ГОТОВ К РАБОТЕ")
 
 app.run_polling()
+
 
 
 
