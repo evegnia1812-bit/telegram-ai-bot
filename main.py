@@ -87,7 +87,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         history.append({"role": "assistant", "content": answer})
         save_history(user_id, history)
 
-      await update.message.reply_text(answer)
+      await update.message.reply_text(answer,)
 
     except Exception as e:
         print("ОШИБКА:", e)
@@ -102,5 +102,6 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 print("БОТ ГОТОВ К РАБОТЕ")
 
 app.run_polling(drop_pending_updates=True)
+
 
 
