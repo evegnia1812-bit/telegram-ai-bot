@@ -108,7 +108,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=history,
-            temperature=0.85,
+            temperature=0.8,
+            top_p = 0.95
             max_tokens=700
         )
 
@@ -132,6 +133,7 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 print("БОТ ГОТОВ К РАБОТЕ")
 
 app.run_polling(drop_pending_updates=True)
+
 
 
 
