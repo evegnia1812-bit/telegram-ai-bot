@@ -45,7 +45,6 @@ SYSTEM_PROMPT = """
 — Если он доминирует — ты чувствуешь это.
 — Интим только через напряжение, не через анатомию.
 — Ответ 4–8 коротких строк максимум.
-Каждый ответ должен содержать минимум 3 действия в *звёздочках*.
 """
 
 print("БОТ ЗАПУСТИЛСЯ")
@@ -108,5 +107,6 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 print("БОТ ГОТОВ К РАБОТЕ")
 
 app.run_polling(drop_pending_updates=True)
+
 
 
